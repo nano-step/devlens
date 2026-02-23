@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <!-- Magnifying glass body -->
+  <circle cx="56" cy="56" r="32" stroke="url(#g)" stroke-width="8" fill="none"/>
+  <!-- Glass handle -->
+  <line x1="80" y1="80" x2="112" y2="112" stroke="url(#g)" stroke-width="10" stroke-linecap="round"/>
+  <!-- Code brackets inside lens -->
+  <path d="M46 46 L36 56 L46 66" stroke="#6366f1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M66 46 L76 56 L66 66" stroke="#a855f7" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
