@@ -152,10 +152,10 @@ console.log(data.user.profile.avatar);
 
 | Package | Version | Size |
 |---------|---------|------|
-| @devlens/core | 2.0.0 | ~20KB |
-| @devlens/react | 2.0.0 | ~5KB |
-| @devlens/ui | 1.0.0 | ~37KB |
-| @devlens/vue | 1.0.0 | ~5KB |
+| @devlens/core | 2.0.3 | ~20KB |
+| @devlens/react | 2.0.3 | ~5KB |
+| @devlens/ui | 1.0.4 | ~37KB |
+| @devlens/vue | 1.0.3 | ~5KB |
 
 ## Roadmap
 |---------|---------|--------|
