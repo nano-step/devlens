@@ -66,9 +66,9 @@ export function createConsoleReporter(): Reporter {
     const categoryLabel = CATEGORY_LABELS[issue.category] ?? '[DL]';
     const color = SEVERITY_COLORS[issue.severity];
     const label = SEVERITY_LABELS[issue.severity];
-
     const header = `${categoryLabel} DevLens [${label}] ${issue.category}: ${issue.message}`;
     const details = formatDetails(issue);
+    const timestamp = `  Timestamp: ${new Date(issue.timestamp).toISOString()}`;
 
     const consoleFn =
       issue.severity === 'error'
@@ -76,22 +76,13 @@ export function createConsoleReporter(): Reporter {
         : issue.severity === 'warn'
           ? console.warn
           : console.log;
-
-    console.groupCollapsed(
-      `%c${header}`,
-      `color: ${color}; font-weight: bold;`,
-    );
-
-    for (const line of details) {
-      consoleFn(line);
-    }
-
+    // Single consoleFn call with header + all details to avoid
+    // per-line stack traces that browsers inject on error/warn calls
     consoleFn(
-      `%cTimestamp: ${new Date(issue.timestamp).toISOString()}`,
-      'color: #888;',
+      `%c${header}\n%c${[...details, timestamp].join('\n')}`,
+      `color: ${color}; font-weight: bold;`,
+      'color: #888; font-weight: normal;',
     );
-
-    console.groupEnd();
   }
 
   function reportBatch(issues: DetectedIssue[]): void {

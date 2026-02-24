@@ -37,8 +37,26 @@ export function createDetectionEngine(
     ...config,
   };
 
-  const reporter: Reporter =
-    resolvedConfig.reporter ?? createConsoleReporter();
+  // Always include the console reporter. If a custom reporter is provided,
+  // compose them so both receive issues.
+  const consoleReporter = createConsoleReporter();
+  const customReporter = resolvedConfig.reporter;
+  const reporter: Reporter = customReporter
+    ? {
+        report(issue: DetectedIssue): void {
+          consoleReporter.report(issue);
+          customReporter.report(issue);
+        },
+        reportBatch(issues: DetectedIssue[]): void {
+          consoleReporter.reportBatch?.(issues);
+          customReporter.reportBatch?.(issues);
+        },
+        clear(): void {
+          consoleReporter.clear?.();
+          customReporter.clear?.();
+        },
+      }
+    : consoleReporter;
   const issues: DetectedIssue[] = [];
   const subscribers = new Set<(issue: DetectedIssue) => void>();
   const lastReportedAt = new Map<string, number>();

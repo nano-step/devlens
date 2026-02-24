@@ -86,6 +86,10 @@ export function createPanel(
   toggleBtn.appendChild(badge);
   shadow.appendChild(toggleBtn);
 
+  let issueCountEl: HTMLElement;
+  let searchInput: HTMLInputElement;
+  let timeUpdateInterval: ReturnType<typeof setInterval> | null = null;
+
   const panel = el('div', `dl-panel ${position}`);
   panel.style.width = `${panelWidth}px`;
   panel.style.height = `${panelHeight}px`;
@@ -109,9 +113,6 @@ export function createPanel(
 
   shadow.appendChild(panel);
 
-  let issueCountEl: HTMLElement;
-  let searchInput: HTMLInputElement;
-  let timeUpdateInterval: ReturnType<typeof setInterval> | null = null;
 
   function buildHeader(): HTMLElement {
     const h = el('div', 'dl-header');
