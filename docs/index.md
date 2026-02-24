@@ -123,6 +123,23 @@ const engine = createDetectionEngine({
 
 Toggle with Ctrl+Shift+D. Supports issue list, timeline, filtering, search, JSON/CSV export, and session persistence.
 
+
+## Inspector Window <span style="background:#6366f1;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;vertical-align:middle">NEW</span>
+
+Open a dedicated inspector window with AI-powered issue analysis:
+
+```ts
+import { createDetectionEngine } from '@devlens/core';
+import { createDevLensInspector, createInspectorReporter } from '@devlens/ui';
+
+const inspector = createDevLensInspector();
+const engine = createDetectionEngine({
+  reporter: createInspectorReporter(inspector),
+});
+```
+
+The inspector opens as a separate browser window with sidebar navigation, issue detail view, timeline, severity/category filtering, and an AI Analysis tab that uses Gemini/Claude/GPT to identify root causes and suggest fixes.
+
 ## Vanilla JS
 
 ```ts
@@ -154,14 +171,15 @@ console.log(data.user.profile.avatar);
 |---------|---------|------|
 | @devlens/core | 2.0.3 | ~20KB |
 | @devlens/react | 2.0.3 | ~5KB |
-| @devlens/ui | 1.0.4 | ~37KB |
+| @devlens/ui | 1.1.0 | ~75KB |
 | @devlens/vue | 1.0.3 | ~5KB |
 
 ## Roadmap
 |---------|---------|--------|
 | **v1.0** | Console logging -- network, null detection, error boundaries | Done |
-| **v2.0** | UI panel overlay + Vue.js support | Current |
-| **v3.0** | AI-powered analysis -- Claude and Gemini models analyze issues, identify root causes, and suggest fixes | Planned |
+| **v2.0** | UI panel overlay + Vue.js support | Done |
+| **v2.1** | Inspector window with AI-powered analysis | Current |
+| **v3.0** | Deep AI integration -- real-time pattern detection, auto-fix generation, CI/CD integration | Planned |
 
 The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes -- directly in your dev console or UI panel.
 

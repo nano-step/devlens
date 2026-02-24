@@ -21,10 +21,10 @@ Zero config. Dev-only. Drop it in and see everything.
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| [@devlens/core](./packages/core) | 2.0.0 | Detection engine, interceptors, guardian, reporter |
-| [@devlens/react](./packages/react) | 2.0.0 | React provider, error boundary, guarded hooks |
-| [@devlens/ui](./packages/ui) | 1.0.0 | Visual debug panel overlay |
-| [@devlens/vue](./packages/vue) | 1.0.0 | Vue 3 plugin, guarded composables |
+| [@devlens/core](./packages/core) | 2.0.3 | Detection engine, interceptors, guardian, reporter |
+| [@devlens/react](./packages/react) | 2.0.3 | React provider, error boundary, guarded hooks |
+| [@devlens/ui](./packages/ui) | 1.1.0 | Visual debug panel overlay + inspector window |
+| [@devlens/vue](./packages/vue) | 1.0.3 | Vue 3 plugin, guarded composables |
 
 ## Installation
 
@@ -255,6 +255,9 @@ DevLens is designed for development only:
 |--------|-------------|
 | `createDevLensPanel(config?)` | Creates the floating debug panel |
 | `createPanelReporter(panel)` | Reporter adapter for the engine |
+| `createDevLensInspector(config?)` | Opens a dedicated inspector window |
+| `createInspectorReporter(inspector)` | Reporter adapter that auto-opens inspector |
+| `createAdapter(sessionId)` | Low-level BroadcastChannel adapter |
 | `createLicenseManager()` | License key management |
 | `createFeatureGate(license)` | Feature gating (Free vs Pro) |
 | `generateLicenseKey()` | Generate a valid license key |
@@ -272,8 +275,9 @@ DevLens is designed for development only:
 | Version | Feature | Status |
 |---------|---------|--------|
 | **v1.0** | Console logging -- network, null detection, error boundaries | Done |
-| **v2.0** | UI panel overlay + Vue.js support | Current |
-| **v3.0** | AI-powered analysis -- Claude and Gemini models analyze detected issues, identify root-cause patterns, and generate fix suggestions directly in your console and UI panel | Planned |
+| **v2.0** | UI panel overlay + Vue.js support | Done |
+| **v2.1** | Inspector window with AI-powered analysis | Current |
+| **v3.0** | Deep AI integration -- real-time pattern detection, auto-fix generation, CI/CD integration | Planned |
 
 The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes -- directly in your dev console or UI panel.
 

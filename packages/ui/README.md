@@ -136,6 +136,9 @@ gate.isEnabled('search');             // true (Free)
 |--------|-------------|
 | `createDevLensPanel(config?)` | Creates the floating panel. Returns `{ panel, reporter, destroy }`. SSR-safe (returns noop in non-browser). |
 | `createPanelReporter(panel)` | Creates a `Reporter` adapter that feeds issues to the panel. |
+| `createDevLensInspector(config?)` | Opens a dedicated inspector window. Returns `{ sendIssue, sendClear, open, close, destroy, connected, isOpen }`. SSR-safe. |
+| `createInspectorReporter(inspector)` | Creates a `Reporter` adapter that auto-opens the inspector on first issue. |
+| `createAdapter(sessionId)` | Low-level BroadcastChannel + postMessage adapter for inspector communication. |
 | `createPanel(host, config?)` | Low-level panel constructor (attach to your own host element). |
 | `createPersistenceManager()` | localStorage-backed issue persistence (max 200 issues). |
 | `exportAsJSON(issues)` | Serialize issues array to formatted JSON string. |
@@ -157,10 +160,13 @@ gate.isEnabled('search');             // true (Free)
 | `FeatureGate` | `isEnabled(feature)`, `getFreeFeatures()`, `getProFeatures()`, `getAllFeatures()` |
 | `Feature` | `'timeline-view' \| 'session-persistence' \| 'export-json' \| 'export-csv' \| 'issue-detail' \| 'search' \| 'category-filter'` |
 | `PersistenceManager` | `save(issues)`, `load()`, `clear()` |
+| `InspectorConfig` | `{ width?, height?, sessionId? }` |
+| `InspectorInstance` | Inspector with `sendIssue()`, `sendClear()`, `open()`, `close()`, `destroy()`, `connected`, `isOpen` |
+| `InspectorAdapter` | Low-level adapter with `send()`, `start()`, `stop()`, `sendIssue()`, `sendClear()`, `connected` |
 
 ## Technical Details
 
-- **~37KB** ESM bundle (panel UI, styles, license system)
+- **~75KB** ESM bundle (panel UI, inspector, styles, license system)
 - **Shadow DOM** -- panel styles are completely isolated, never leak into your app
 - **Dual ESM + CJS** output with full TypeScript declarations
 - **SSR-safe** -- returns noop instances when `document` is unavailable
@@ -171,10 +177,11 @@ gate.isEnabled('search');             // true (Free)
 
 | Version | Feature | Status |
 |---------|---------|--------|
-| v1.0 | Debug panel with filtering, search, export, persistence, license gating | Current |
-| v2.0 | AI-powered panel -- integrate Claude and Gemini models to analyze detected issues in real time, show root-cause explanations and AI-generated fix suggestions directly in the panel | Planned |
+| v1.0 | Debug panel with filtering, search, export, persistence, license gating | Done |
+| v1.1 | Inspector window with AI-powered analysis (Gemini, Claude, GPT) | Current |
+| v2.0 | Deep AI integration -- real-time pattern detection across issues, auto-fix generation, CI/CD integration | Planned |
 
-The v2.0 AI integration will add an "Analyze" button to each issue. Click it, and an LLM analyzes the issue context (path, value, stack trace, surrounding issues) to explain why it happened and suggest the exact code fix.
+The v1.1 Inspector opens a separate browser window with full sidebar navigation, issue detail view, timeline, and an AI Analysis tab. Select a model (Gemini, Claude, GPT), click Analyze, and get root-cause detection with fix suggestions.
 
 ## License
 

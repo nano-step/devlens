@@ -97,6 +97,31 @@ Toggle with **Ctrl+Shift+D**. The panel provides:
 - Session persistence (localStorage)
 - Export as JSON or CSV
 
+
+## Inspector Window
+
+For a full DevTools-like experience, use the Inspector instead of the overlay panel. It opens a separate browser window:
+
+```ts
+import { createDetectionEngine } from '@devlens/core';
+import { createDevLensInspector, createInspectorReporter } from '@devlens/ui';
+
+const inspector = createDevLensInspector({
+  width: 1200,
+  height: 800,
+});
+
+const engine = createDetectionEngine({
+  reporter: createInspectorReporter(inspector),
+});
+```
+
+The inspector auto-opens on the first detected issue. It includes:
+- Sidebar navigation: Issues, Timeline, AI Analysis, Settings
+- AI Analysis tab with model selection (Gemini, Claude, GPT)
+- BroadcastChannel communication (no same-origin restriction)
+- Connection health monitoring with ping/pong
+
 ## Guard Your State
 
 Use `useGuardedState` to automatically detect null/undefined access on your state objects:
