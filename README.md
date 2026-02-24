@@ -2,7 +2,7 @@
 
 Automatic runtime error detection and logging for JavaScript applications.
 
-DevLens detects silent failures in your app — null data, API errors, undefined properties — and logs them with actionable context. No manual `console.log` required.
+DevLens detects silent failures in your app -- null data, API errors, undefined properties -- and logs them with actionable context. No manual `console.log` required.
 
 ## Why DevLens?
 
@@ -10,18 +10,33 @@ You've been here: the UI renders blank, no error in console, and you spend 30 mi
 
 DevLens fixes this by automatically detecting and logging:
 
-- **API errors** — failed fetch/XHR calls, 4xx/5xx responses, network failures
-- **Null/undefined access** — property access on null or undefined objects, before it crashes
-- **Missing render data** — state values your UI depends on that are null/undefined
-- **Unhandled errors** — global errors and unhandled promise rejections
+- **API errors** -- failed fetch/XHR calls, 4xx/5xx responses, network failures
+- **Null/undefined access** -- property access on null or undefined objects, before it crashes
+- **Missing render data** -- state values your UI depends on that are null/undefined
+- **Unhandled errors** -- global errors and unhandled promise rejections
 
 Zero config. Dev-only. Drop it in and see everything.
+
+## Packages
+
+| Package | Version | Description |
+|---------|---------|-------------|
+| [@devlens/core](./packages/core) | 2.0.0 | Detection engine, interceptors, guardian, reporter |
+| [@devlens/react](./packages/react) | 2.0.0 | React provider, error boundary, guarded hooks |
+| [@devlens/ui](./packages/ui) | 1.0.0 | Visual debug panel overlay |
+| [@devlens/vue](./packages/vue) | 1.0.0 | Vue 3 plugin, guarded composables |
 
 ## Installation
 
 ```bash
 # React apps
 npm install @devlens/core @devlens/react
+
+# React apps with UI panel
+npm install @devlens/core @devlens/react @devlens/ui
+
+# Vue apps
+npm install @devlens/core @devlens/vue
 
 # Vanilla JS
 npm install @devlens/core
@@ -45,6 +60,38 @@ function App() {
 
 That's it. Open your browser console and DevLens will start logging detected issues.
 
+## Quick Start (Vue)
+
+```ts
+import { createApp } from 'vue';
+import { createDevLensPlugin } from '@devlens/vue';
+
+const app = createApp(App);
+app.use(createDevLensPlugin());
+app.mount('#app');
+```
+
+## UI Panel
+
+Add a visual debug panel to any app:
+
+```ts
+import { createDetectionEngine } from '@devlens/core';
+import { createDevLensPanel, createPanelReporter } from '@devlens/ui';
+
+const panel = createDevLensPanel({
+  position: 'bottom-right',
+  theme: 'dark',
+  hotkey: 'ctrl+shift+d',
+});
+
+const engine = createDetectionEngine({
+  reporter: createPanelReporter(panel),
+});
+```
+
+The panel provides issue list and timeline views, severity/category filtering, search, session persistence, and JSON/CSV export.
+
 ## Features
 
 ### Network Interceptor
@@ -52,11 +99,11 @@ That's it. Open your browser console and DevLens will start logging detected iss
 Automatically intercepts `fetch` and `XMLHttpRequest` calls. No config needed.
 
 ```
-🌐 DevLens [ERROR] network: POST /api/users returned 500 Internal Server Error
-  ├─ Status: 500
-  ├─ Duration: 1234ms
-  ├─ Suggestion: Server returned 500 — check server logs
-  └─ Source: NetworkInterceptor
+[NET] DevLens [ERROR] network: POST /api/users returned 500 Internal Server Error
+  |- Status: 500
+  |- Duration: 1234ms
+  |- Suggestion: Server returned 500 -- check server logs
+  \- Source: NetworkInterceptor
 ```
 
 ### Data Guardian
@@ -70,7 +117,7 @@ function UserProfile() {
   const [user, setUser] = useGuardedState(initialUser, 'UserProfile');
 
   // If user.profile.avatar is null, DevLens auto-logs:
-  // 💀 DevLens [WARN] null-access: Property "avatar" is null at path "user.profile.avatar"
+  // [NULL] DevLens [WARN] null-access: Property "avatar" is null at path "user.profile.avatar"
   return <img src={user.profile.avatar} />;
 }
 ```
@@ -86,7 +133,7 @@ function Dashboard({ user, posts, settings }) {
   useGuardedEffect({ user, posts, settings }, 'Dashboard');
 
   // If any value is null/undefined, DevLens logs:
-  // 🎨 DevLens [WARN] render-data: "posts" is undefined in Dashboard
+  // [RENDER] DevLens [WARN] render-data: "posts" is undefined in Dashboard
   return <div>...</div>;
 }
 ```
@@ -178,7 +225,7 @@ DevLens is designed for development only:
 - Automatically disabled when `NODE_ENV === 'production'`
 - `sideEffects: false` in package.json enables tree-shaking
 - Provider renders children directly when disabled (zero overhead)
-- No data is sent anywhere — everything stays in your browser console
+- No data is sent anywhere -- everything stays in your browser console
 
 ## API Reference
 
@@ -202,11 +249,30 @@ DevLens is designed for development only:
 | `useGuardedState(initial, label?)` | useState with null detection |
 | `useGuardedEffect(data, label?)` | Watch data for null/undefined |
 
+### @devlens/ui
+
+| Export | Description |
+|--------|-------------|
+| `createDevLensPanel(config?)` | Creates the floating debug panel |
+| `createPanelReporter(panel)` | Reporter adapter for the engine |
+| `createLicenseManager()` | License key management |
+| `createFeatureGate(license)` | Feature gating (Free vs Pro) |
+| `generateLicenseKey()` | Generate a valid license key |
+
+### @devlens/vue
+
+| Export | Description |
+|--------|-------------|
+| `createDevLensPlugin(options?)` | Vue 3 plugin with auto error/warn handlers |
+| `useDevLens()` | Inject the engine instance |
+| `useGuardedRef(initialValue, label?)` | Reactive ref with null detection |
+| `useGuardedWatch(data, label?)` | Watch data for null/undefined |
+
 ## Roadmap
 
-- **v1.0** — Console logging (current)
-- **v2.0** — UI overlay with visual issue indicators
-- **v3.0** — Vue.js support
+- **v1.0** -- Console logging (done)
+- **v2.0** -- UI panel overlay + Vue.js support (current)
+- **v3.0** -- Cloud dashboard + analytics
 
 ## Contributing
 

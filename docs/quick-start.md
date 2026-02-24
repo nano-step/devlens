@@ -38,6 +38,65 @@ function App() {
 
 That's it. Open your browser console and DevLens will start logging detected issues.
 
+## Vue Setup
+
+```ts
+import { createApp } from 'vue';
+import { createDevLensPlugin } from '@devlens/vue';
+
+const app = createApp(App);
+app.use(createDevLensPlugin());
+app.mount('#app');
+```
+
+The plugin automatically installs `app.config.errorHandler` and `app.config.warnHandler`.
+
+::: code-group
+
+```bash [npm]
+npm install @devlens/core @devlens/vue
+```
+
+```bash [yarn]
+yarn add @devlens/core @devlens/vue
+```
+
+```bash [pnpm]
+pnpm add @devlens/core @devlens/vue
+```
+
+:::
+
+## UI Panel
+
+Add a visual debug overlay to any app:
+
+```bash
+npm install @devlens/ui
+```
+
+```ts
+import { createDetectionEngine } from '@devlens/core';
+import { createDevLensPanel, createPanelReporter } from '@devlens/ui';
+
+const panel = createDevLensPanel({
+  position: 'bottom-right',
+  theme: 'dark',
+  hotkey: 'ctrl+shift+d',
+});
+
+const engine = createDetectionEngine({
+  reporter: createPanelReporter(panel),
+});
+```
+
+Toggle with **Ctrl+Shift+D**. The panel provides:
+- Issue list and timeline views
+- Severity and category filtering
+- Full-text search
+- Session persistence (localStorage)
+- Export as JSON or CSV
+
 ## Guard Your State
 
 Use `useGuardedState` to automatically detect null/undefined access on your state objects:
@@ -66,6 +125,26 @@ function Dashboard({ user, posts, settings }) {
   // If any value is null/undefined, DevLens logs it
   return <div>...</div>;
 }
+```
+
+## Vue Composables
+
+### Guarded Ref
+
+```ts
+import { useGuardedRef } from '@devlens/vue';
+
+const user = useGuardedRef(initialUser, 'UserProfile');
+// Accessing null/undefined properties on user.value triggers detection
+```
+
+### Guarded Watch
+
+```ts
+import { useGuardedWatch } from '@devlens/vue';
+
+useGuardedWatch({ user, posts, settings }, 'Dashboard');
+// Null/undefined values are reported automatically
 ```
 
 ## Configuration
@@ -101,7 +180,7 @@ function Dashboard({ user, posts, settings }) {
 
 ## Vanilla JS
 
-For non-React projects, use `@devlens/core` directly:
+For non-React/Vue projects, use `@devlens/core` directly:
 
 ```bash
 npm install @devlens/core
@@ -134,4 +213,4 @@ DevLens is designed for development only:
 - Automatically disabled when `NODE_ENV === 'production'`
 - `sideEffects: false` enables tree-shaking
 - Provider renders children directly when disabled (zero overhead)
-- No data is sent anywhere — everything stays in your browser console
+- No data is sent anywhere -- everything stays in your browser console
