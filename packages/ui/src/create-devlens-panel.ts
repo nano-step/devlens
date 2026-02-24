@@ -53,7 +53,7 @@ export function createDevLensPanel(config?: PanelConfig): {
 
   const host = document.createElement('div');
   host.id = 'devlens-ui-root';
-  host.style.cssText = 'position:fixed;z-index:2147483647;pointer-events:none;top:0;left:0;width:0;height:0;';
+  host.style.cssText = 'position:fixed;z-index:2147483647;pointer-events:none;top:0;left:0;width:100vw;height:100vh;overflow:visible;';
   document.body.appendChild(host);
 
   const panel = createPanel(host, config);

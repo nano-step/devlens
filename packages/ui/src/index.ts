@@ -9,3 +9,7 @@ export type { PanelConfig, PanelState, PanelInstance } from './types';
 export type { PersistenceManager } from './persistence';
 export type { LicenseStatus, LicenseInfo, LicenseManager } from './license';
 export type { Feature, FeatureGate } from './feature-gate';
+export { createDevLensInspector, createInspectorReporter } from './inspector/index';
+export type { InspectorConfig, InspectorInstance } from './inspector/index';
+export { createAdapter } from './inspector/adapter';
+export type { InspectorAdapter } from './inspector/adapter';
