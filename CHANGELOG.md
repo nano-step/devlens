@@ -1,5 +1,25 @@
 # Changelog
 
+
+## 1.1.0 (2026-02-24)
+
+### New Features
+
+- **@devlens/ui** v1.1.0 -- Inspector: separate browser window for issue debugging
+  - `createDevLensInspector()` opens a dedicated inspector popup window
+  - `createInspectorReporter()` reporter adapter that auto-opens the inspector on first issue
+  - Full sidebar navigation: Issues, Timeline, AI Analysis, Settings tabs
+  - BroadcastChannel communication with postMessage fallback
+  - AI Analysis tab: analyze issues with Gemini/Claude/GPT models, get root-cause detection, pattern analysis, and fix suggestions
+  - Issue detail expansion with path, value, source, suggestion, and stack trace
+  - Severity and category filtering, full-text search
+  - JSON/CSV export and session clearing
+  - Connection status indicator with ping/pong health check
+  - SSR-safe and production-safe (auto-disabled)
+  - ~75KB ESM bundle (includes panel + inspector)
+
+---
+
 ## 2.0.3 / 1.0.4 / 1.0.3 (2026-02-24, 02:46 UTC)
 
 ### Bug Fixes
