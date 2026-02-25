@@ -438,6 +438,7 @@ body {
 .detail-actions {
   margin-top: 8px;
   display: flex;
+  align-items: center;
   gap: 6px;
 }
 
@@ -776,3 +777,123 @@ body {
 
 /* ========== Utilities ========== */
 .hidden { display: none !important; }
+
+/* ========== Inline AI Select ========== */
+.inline-ai-select {
+  padding: 4px 8px;
+  border: 1px solid #1e1e30;
+  border-radius: 6px;
+  background: #12121e;
+  color: #8888a0;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.inline-ai-select:hover { border-color: #6366f1; }
+.inline-ai-select:focus { border-color: #6366f1; }
+
+/* ========== Inline AI Results ========== */
+.inline-ai {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: #12121e;
+  border: 1px solid #1e1e30;
+  border-radius: 10px;
+  animation: fadeSlideIn 0.2s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.inline-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1e1e30;
+}
+
+.inline-ai-header.error {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  color: #ff6b6b;
+  font-size: 12px;
+}
+
+.inline-ai-dot.error {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff6b6b;
+  flex-shrink: 0;
+}
+
+.inline-ai-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #818cf8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inline-ai-meta {
+  font-size: 10px;
+  color: #5a5a72;
+  padding: 1px 6px;
+  background: #1a1a2a;
+  border-radius: 4px;
+}
+
+.inline-ai-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #1e1e30;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.inline-ai-section {
+  margin-bottom: 10px;
+}
+
+.inline-ai-section:last-child {
+  margin-bottom: 0;
+}
+
+.inline-ai-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.inline-ai-section-text {
+  font-size: 12px;
+  color: #b0b0c8;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.inline-ai-code {
+  font-size: 11px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  color: #e2e2f0;
+  background: #0a0a14;
+  border: 1px solid #1e1e30;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+  overflow-x: auto;
+}

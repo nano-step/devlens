@@ -1,10 +1,100 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DetectedIssue } from '@devlens/core';
 import { useDashboardStore, useDashboardActions } from '../hooks/use-dashboard-store';
 import { filterIssues, relativeTime } from '../lib/utils';
-import { CATEGORY_LABELS } from '../lib/types';
+import { CATEGORY_LABELS, AI_MODELS } from '../lib/types';
+import type { AIModel, IssueAIState } from '../lib/types';
+import { analyzeSingleIssue } from '../lib/ai';
+
+function InlineAIResult({ aiState }: { aiState: IssueAIState }) {
+  if (aiState.loading) {
+    return (
+      <div className="inline-ai">
+        <div className="inline-ai-header">
+          <div className="inline-ai-spinner" />
+          <span>Analyzing...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (aiState.error) {
+    return (
+      <div className="inline-ai">
+        <div className="inline-ai-header error">
+          <span className="inline-ai-dot error" />
+          <span>{aiState.error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!aiState.result) return null;
+
+  const { result } = aiState;
+
+  return (
+    <div className="inline-ai">
+      <div className="inline-ai-header">
+        <span className="inline-ai-label">AI Analysis</span>
+        {result._model && <span className="inline-ai-meta">{result._model}</span>}
+        {result._tokens ? <span className="inline-ai-meta">{result._tokens} tokens</span> : null}
+      </div>
+
+      <div className="inline-ai-section">
+        <div className="inline-ai-section-label">Root Cause</div>
+        <div className="inline-ai-section-text">{result.rootCause}</div>
+      </div>
+
+      <div className="inline-ai-section">
+        <div className="inline-ai-section-label">Fix</div>
+        <div className="inline-ai-section-text">{result.fix}</div>
+      </div>
+
+      {result.codeExample && (
+        <div className="inline-ai-section">
+          <div className="inline-ai-section-label">Code</div>
+          <pre className="inline-ai-code">{result.codeExample}</pre>
+        </div>
+      )}
+
+      {result.impact && (
+        <div className="inline-ai-section">
+          <div className="inline-ai-section-label">Impact</div>
+          <div className="inline-ai-section-text">{result.impact}</div>
+        </div>
+      )}
+
+      {result.prevention && (
+        <div className="inline-ai-section">
+          <div className="inline-ai-section-label">Prevention</div>
+          <div className="inline-ai-section-text">{result.prevention}</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function IssueDetail({ issue }: { issue: DetectedIssue }) {
+  const { issueAI } = useDashboardStore();
+  const { setIssueAI } = useDashboardActions();
+  const [model, setModel] = useState<AIModel>('gemini-2.5-flash-lite');
+  const aiState = issueAI[issue.id];
+
+  const handleAnalyze = useCallback(async () => {
+    if (aiState?.loading) return;
+    setIssueAI(issue.id, { loading: true, error: null, result: null });
+    try {
+      const result = await analyzeSingleIssue(issue, model);
+      setIssueAI(issue.id, { loading: false, result, error: null });
+    } catch (err) {
+      setIssueAI(issue.id, {
+        loading: false,
+        error: err instanceof Error ? err.message : 'Analysis failed',
+      });
+    }
+  }, [aiState?.loading, issue, model, setIssueAI]);
+
   return (
     <div className="issue-detail visible">
       {issue.path && (
@@ -45,16 +135,32 @@ function IssueDetail({ issue }: { issue: DetectedIssue }) {
         </div>
       )}
       <div className="detail-actions">
+        <select
+          className="inline-ai-select"
+          value={model}
+          onChange={(e) => {
+            e.stopPropagation();
+            setModel(e.target.value as AIModel);
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {AI_MODELS.map((m) => (
+            <option key={m} value={m}>{m}</option>
+          ))}
+        </select>
         <button
           className="btn btn-brand"
+          disabled={aiState?.loading}
           onClick={(e) => {
             e.stopPropagation();
-            // Switch to AI tab is handled at app level
+            handleAnalyze();
           }}
         >
-          Analyze with AI
+          {aiState?.loading ? 'Analyzing...' : aiState?.result ? 'Re-analyze' : 'Analyze with AI'}
         </button>
       </div>
+
+      {aiState && <InlineAIResult aiState={aiState} />}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { DetectedIssue } from '@devlens/core';
-import type { DashboardState, Tab, SeverityFilter, CategoryFilter, AIResult, AIModel } from '../lib/types';
+import type { DashboardState, Tab, SeverityFilter, CategoryFilter, AIResult, AIModel, IssueAIState } from '../lib/types';
 import { createDashboardConnection } from '../lib/connection';
 import type { DashboardConnection } from '../lib/connection';
 
@@ -35,6 +35,9 @@ function createStore() {
     model: 'gemini-2.5-flash-lite',
   };
 
+  // Per-issue AI analysis results (keyed by issue ID)
+  let issueAIMap: Record<string, IssueAIState> = {};
+
   const listeners = new Set<() => void>();
 
   function notify(): void {
@@ -56,6 +59,10 @@ function createStore() {
     return aiState;
   }
 
+  function getIssueAIMap() {
+    return issueAIMap;
+  }
+
   function setState(partial: Partial<DashboardState>): void {
     state = { ...state, ...partial };
     notify();
@@ -63,6 +70,12 @@ function createStore() {
 
   function setAIState(partial: Partial<typeof aiState>): void {
     aiState = { ...aiState, ...partial };
+    notify();
+  }
+
+  function setIssueAI(issueId: string, partial: Partial<IssueAIState>): void {
+    const current = issueAIMap[issueId] ?? { loading: false, error: null, result: null };
+    issueAIMap = { ...issueAIMap, [issueId]: { ...current, ...partial } };
     notify();
   }
 
@@ -83,6 +96,7 @@ function createStore() {
   function clearIssues(): void {
     state = { ...state, issues: [], expandedIssueId: null };
     aiState = { ...aiState, result: null, error: null };
+    issueAIMap = {};
     notify();
   }
 
@@ -123,8 +137,10 @@ function createStore() {
     subscribe,
     getState,
     getAIState,
+    getIssueAIMap,
     setState,
     setAIState,
+    setIssueAI,
     addIssue,
     syncIssues,
     clearIssues,
@@ -146,7 +162,8 @@ let connection: DashboardConnection | null = null;
 export function useDashboardStore() {
   const state = useSyncExternalStore(store.subscribe, store.getState);
   const aiState = useSyncExternalStore(store.subscribe, store.getAIState);
-  return { ...state, ai: aiState };
+  const issueAIMap = useSyncExternalStore(store.subscribe, store.getIssueAIMap);
+  return { ...state, ai: aiState, issueAI: issueAIMap };
 }
 
 export function useDashboardActions() {
@@ -158,6 +175,7 @@ export function useDashboardActions() {
     toggleExpandedIssue: store.toggleExpandedIssue,
     clearIssues: store.clearIssues,
     setAIState: store.setAIState,
+    setIssueAI: store.setIssueAI,
     addIssue: store.addIssue,
   };
 }

@@ -47,6 +47,22 @@ export interface AISuggestionItem {
   codeExample?: string;
 }
 
+export interface SingleIssueAIResult {
+  rootCause: string;
+  fix: string;
+  codeExample?: string;
+  impact?: string;
+  prevention?: string;
+  _model?: string;
+  _tokens?: number;
+}
+
+export interface IssueAIState {
+  loading: boolean;
+  error: string | null;
+  result: SingleIssueAIResult | null;
+}
+
 export const CATEGORY_LABELS: Record<string, string> = {
   'network': 'NET',
   'null-access': 'NULL',
