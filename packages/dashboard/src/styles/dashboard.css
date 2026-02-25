@@ -897,3 +897,71 @@ body {
   line-height: 1.5;
   overflow-x: auto;
 }
+
+/* ========== Markdown Renderer ========== */
+.md-content {
+  font-size: 12px;
+  color: #b0b0c8;
+  line-height: 1.6;
+}
+
+.md-content p {
+  margin: 0 0 8px;
+}
+
+.md-content p:last-child {
+  margin-bottom: 0;
+}
+
+.md-content strong {
+  color: #e2e2f0;
+  font-weight: 600;
+}
+
+.md-inline-code {
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', ui-monospace, monospace;
+  font-size: 11px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.md-code-block {
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', ui-monospace, monospace;
+  font-size: 11px;
+  color: #e2e2f0;
+  background: #0a0a14;
+  border: 1px solid #1e1e30;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.md-code-block code {
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  padding: 0;
+  border: none;
+  color: inherit;
+}
+
+.md-content ul,
+.md-content ol {
+  margin: 4px 0 8px;
+  padding-left: 20px;
+}
+
+.md-content li {
+  margin-bottom: 2px;
+}
+
+.md-content li:last-child {
+  margin-bottom: 0;
+}

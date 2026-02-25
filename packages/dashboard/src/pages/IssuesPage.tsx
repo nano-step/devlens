@@ -5,6 +5,7 @@ import { filterIssues, relativeTime } from '../lib/utils';
 import { CATEGORY_LABELS, AI_MODELS } from '../lib/types';
 import type { AIModel, IssueAIState } from '../lib/types';
 import { analyzeSingleIssue } from '../lib/ai';
+import { Markdown } from '../lib/markdown';
 
 function InlineAIResult({ aiState }: { aiState: IssueAIState }) {
   if (aiState.loading) {
@@ -43,32 +44,32 @@ function InlineAIResult({ aiState }: { aiState: IssueAIState }) {
 
       <div className="inline-ai-section">
         <div className="inline-ai-section-label">Root Cause</div>
-        <div className="inline-ai-section-text">{result.rootCause}</div>
+        <Markdown content={result.rootCause} />
       </div>
 
       <div className="inline-ai-section">
         <div className="inline-ai-section-label">Fix</div>
-        <div className="inline-ai-section-text">{result.fix}</div>
+        <Markdown content={result.fix} />
       </div>
 
       {result.codeExample && (
         <div className="inline-ai-section">
           <div className="inline-ai-section-label">Code</div>
-          <pre className="inline-ai-code">{result.codeExample}</pre>
+          <Markdown content={'```\n' + result.codeExample + '\n```'} />
         </div>
       )}
 
       {result.impact && (
         <div className="inline-ai-section">
           <div className="inline-ai-section-label">Impact</div>
-          <div className="inline-ai-section-text">{result.impact}</div>
+          <Markdown content={result.impact} />
         </div>
       )}
 
       {result.prevention && (
         <div className="inline-ai-section">
           <div className="inline-ai-section-label">Prevention</div>
-          <div className="inline-ai-section-text">{result.prevention}</div>
+          <Markdown content={result.prevention} />
         </div>
       )}
     </div>

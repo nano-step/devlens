@@ -3,6 +3,7 @@ import { useDashboardStore, useDashboardActions } from '../hooks/use-dashboard-s
 import { analyzeIssues } from '../lib/ai';
 import { AI_MODELS } from '../lib/types';
 import type { AIModel, AIResult } from '../lib/types';
+import { Markdown } from '../lib/markdown';
 
 const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none"><circle cx="14" cy="14" r="10" stroke="#6366f1" stroke-width="2.5"/><line x1="21.5" y1="21.5" x2="32" y2="32" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/><text x="9" y="18" font-family="monospace" font-size="10" font-weight="bold" fill="#6366f1">{}</text></svg>`;
 
@@ -24,21 +25,21 @@ function AIItemView({
         {item.title ?? ''}
       </div>
       <div className="ai-item-body">
-        {item.description && <div>{item.description}</div>}
+        {item.description && <Markdown content={item.description} />}
         {item.rootCause && (
           <div className="ai-item-field">
             <div className="ai-item-field-label">Root Cause</div>
-            {item.rootCause}
+            <Markdown content={item.rootCause} />
           </div>
         )}
         {item.fix && (
           <div className="ai-item-field">
             <div className="ai-item-field-label">Fix</div>
-            {item.fix}
+            <Markdown content={item.fix} />
           </div>
         )}
         {item.codeExample && (
-          <div className="ai-item-code">{item.codeExample}</div>
+          <Markdown content={'```\n' + item.codeExample + '\n```'} />
         )}
         {item.affectedPath && (
           <div className="ai-item-field">
@@ -68,7 +69,7 @@ function AIResults({ result }: { result: AIResult }) {
             {result._tokens ? <span>{result._tokens} tokens</span> : null}
           </div>
         )}
-        <div className="ai-summary-text">{result.summary ?? ''}</div>
+        <Markdown content={result.summary ?? ''} />
       </div>
 
       {result.criticalIssues && result.criticalIssues.length > 0 && (
