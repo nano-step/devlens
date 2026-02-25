@@ -1,7 +1,7 @@
 {
-  "name": "@devlens/ui",
-  "version": "1.2.0",
-  "description": "DevLens UI Panel - visual issue overlay for browser debugging",
+  "name": "@devlens/vite",
+  "version": "0.1.0",
+  "description": "Vite plugin for DevLens — embedded dashboard at /__devlens/",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -18,29 +18,28 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "client"
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
+    "build:client": "cd ../dashboard && npx vite build --outDir ../vite/client --emptyOutDir",
+    "build": "npm run build:client && tsup",
     "dev": "tsup --watch",
-    "test": "vitest run",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist client",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "devlens",
-    "crashsense",
-    "debug",
-    "ui-panel",
-    "developer-tools",
-    "overlay"
+    "vite-plugin",
+    "devtools",
+    "debug"
   ],
   "author": "crashsense",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crashsense/devlens.git",
-    "directory": "packages/ui"
+    "directory": "packages/vite"
   },
   "homepage": "https://github.com/crashsense/devlens#readme",
   "bugs": {
@@ -51,11 +50,13 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@devlens/core": "2.0.3"
+    "sirv": "^3.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.3.0",
     "tsup": "^8.4.0",
-    "vitest": "^3.0.0"
+    "vite": "^6.0.0"
+  },
+  "peerDependencies": {
+    "vite": ">=5.0.0"
   }
 }

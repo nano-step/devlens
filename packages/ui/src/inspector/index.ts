@@ -7,6 +7,14 @@ export interface InspectorConfig {
   width?: number;
   height?: number;
   sessionId?: string;
+  /**
+   * URL of the DevLens Dashboard app.
+   * When set, `open()` navigates to this URL (with `?session=<id>`).
+   * When omitted, falls back to the legacy Blob-URL popup.
+   *
+   * Example: `'http://localhost:5174'` or `'https://dashboard.devlens.dev'`
+   */
+  dashboardUrl?: string;
 }
 
 export interface InspectorInstance {
@@ -17,6 +25,9 @@ export interface InspectorInstance {
   destroy(): void;
   readonly connected: boolean;
   readonly isOpen: boolean;
+  readonly sessionId: string;
+  /** Full URL to open the dashboard for this session */
+  readonly dashboardLink: string;
 }
 
 const NOOP_INSTANCE: InspectorInstance = {
@@ -27,6 +38,8 @@ const NOOP_INSTANCE: InspectorInstance = {
   destroy: () => {},
   connected: false,
   isOpen: false,
+  sessionId: '',
+  dashboardLink: '',
 };
 
 export function createDevLensInspector(config?: InspectorConfig): InspectorInstance {
@@ -48,10 +61,19 @@ export function createDevLensInspector(config?: InspectorConfig): InspectorInsta
   const sessionId = config?.sessionId ?? generateSessionId();
   const width = config?.width ?? 1200;
   const height = config?.height ?? 800;
+  const dashboardUrl = config?.dashboardUrl;
   const adapter = createAdapter(sessionId);
 
   let inspectorWindow: Window | null = null;
   let pollTimer: ReturnType<typeof setInterval> | null = null;
+
+  function getDashboardLink(): string {
+    if (dashboardUrl) {
+      const base = dashboardUrl.replace(/\/$/, '');
+      return `${base}?session=${sessionId}`;
+    }
+    return '';
+  }
 
   function open(): void {
     if (inspectorWindow && !inspectorWindow.closed) {
@@ -59,17 +81,27 @@ export function createDevLensInspector(config?: InspectorConfig): InspectorInsta
       return;
     }
 
-    const html = getInspectorHTML(sessionId);
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
+    if (dashboardUrl) {
+      // Dashboard mode — open the hosted dashboard URL in a new tab
+      const url = getDashboardLink();
+      inspectorWindow = window.open(
+        url,
+        `devlens-dashboard-${sessionId}`,
+      );
+    } else {
+      // Legacy mode — Blob URL popup
+      const html = getInspectorHTML(sessionId);
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
 
-    inspectorWindow = window.open(
-      url,
-      `devlens-inspector-${sessionId}`,
-      `width=${width},height=${height},menubar=no,toolbar=no,status=no`,
-    );
+      inspectorWindow = window.open(
+        url,
+        `devlens-inspector-${sessionId}`,
+        `width=${width},height=${height},menubar=no,toolbar=no,status=no`,
+      );
 
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
 
     if (inspectorWindow) {
       adapter.start(inspectorWindow);
@@ -115,6 +147,8 @@ export function createDevLensInspector(config?: InspectorConfig): InspectorInsta
     destroy,
     get connected() { return adapter.connected; },
     get isOpen() { return inspectorWindow !== null && !inspectorWindow.closed; },
+    sessionId,
+    get dashboardLink() { return getDashboardLink(); },
   };
 }
 

@@ -1,6 +1,36 @@
 # Changelog
 
 
+## 0.1.0 (2026-02-25)
+
+### New Packages
+
+- **@devlens/dashboard** v0.1.0 -- Standalone React dashboard app (inspired by Stately Inspector)
+  - Full dashboard UI: Issues list, Timeline, AI Analysis, Settings
+  - BroadcastChannel + postMessage communication with the host app
+  - Severity/category filtering, full-text search, issue detail expansion
+  - AI-powered analysis with model selector (Gemini, Claude, GPT)
+  - JSON/CSV export, session clearing
+  - Connection status indicator
+  - Session ID from URL query parameter (`?session=<id>`)
+  - Relative asset paths -- works when served at any base path
+
+- **@devlens/vite** v0.1.0 -- Vite plugin for embedded dashboard
+  - Zero-config: add `devlens()` to Vite plugins, dashboard auto-available at `/__devlens__/`
+  - No extra terminal, no extra command -- dashboard served by the same dev server
+  - Uses `sirv` + `configureServer` middleware (same pattern as Vue DevTools, Vitest UI, UnoCSS Inspector)
+  - Pre-built dashboard client embedded as static assets (~216KB JS, ~12KB CSS)
+  - Prints `➜  DevLens: /__devlens__` in terminal alongside Vite's URLs
+  - Dev-only (`apply: 'serve'`) -- zero overhead in production builds
+  - Configurable base path via `devlens({ base: '/my-path' })`
+
+### Changes
+
+- **@devlens/ui** v1.2.0 -- `createDevLensInspector()` now supports `dashboardUrl` option
+  - When `dashboardUrl` is set, `open()` navigates to the hosted dashboard URL instead of a Blob popup
+  - New properties: `sessionId`, `dashboardLink` on `InspectorInstance`
+  - Legacy Blob-URL popup mode fully preserved (backward compatible)
+
 ## 1.1.0 (2026-02-24)
 
 ### New Features
