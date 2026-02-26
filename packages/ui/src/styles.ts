@@ -104,6 +104,54 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
     .dl-toggle.top-right    { top: 16px; right: 16px; }
     .dl-toggle.top-left     { top: 16px; left: 16px; }
 
+    /* ─── Dashboard Open Button (optional, shown above toggle when dashboardUrl is set) ─── */
+    .dl-dashboard-btn {
+      position: fixed;
+      z-index: 2147483647;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid ${colors.border};
+      background: ${colors.bgSecondary};
+      color: ${colors.textSecondary};
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0;
+      padding: 0;
+      box-shadow: 0 2px 8px ${colors.shadow};
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      user-select: none;
+      pointer-events: auto;
+    }
+
+    .dl-dashboard-btn svg {
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .dl-dashboard-btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 4px 16px ${colors.shadow};
+      background: ${colors.brand};
+      color: #fff;
+      border-color: ${colors.brand};
+    }
+
+    .dl-dashboard-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Position: bottom anchors sit 66px above the main toggle (42px + 8px gap + 16px margin) */
+    .dl-dashboard-btn.bottom-right { bottom: 66px; right: 16px; }
+    .dl-dashboard-btn.bottom-left  { bottom: 66px; left: 16px; }
+    /* Position: top anchors sit 66px below the main toggle */
+    .dl-dashboard-btn.top-right    { top: 66px; right: 16px; }
+    .dl-dashboard-btn.top-left     { top: 66px; left: 16px; }
+
     .dl-toggle-badge {
       position: absolute;
       top: -4px;
@@ -204,22 +252,66 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
     }
 
     .dl-header-btn {
-      width: 28px;
-      height: 28px;
-      border: none;
-      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      height: 26px;
+      border: 1px solid transparent;
+      border-radius: 5px;
       background: transparent;
       color: ${colors.textSecondary};
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      transition: background 0.12s ease, color 0.12s ease;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: inherit;
+      letter-spacing: 0.03em;
+      transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .dl-header-btn svg {
+      flex-shrink: 0;
+      opacity: 0.75;
+    }
+
+    .dl-btn-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
     }
 
     .dl-header-btn:hover {
       background: ${colors.bgTertiary};
+      border-color: ${colors.border};
+      color: ${colors.text};
+    }
+
+    .dl-header-btn:hover svg {
+      opacity: 1;
+    }
+
+    .dl-header-btn--danger {
+      color: ${colors.textMuted};
+    }
+
+    .dl-header-btn--danger:hover {
+      background: ${colors.errorBg};
+      border-color: ${colors.error};
+      color: ${colors.error};
+    }
+
+    .dl-header-btn--close {
+      width: 26px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .dl-header-btn--close:hover {
+      background: ${colors.bgTertiary};
+      border-color: ${colors.border};
       color: ${colors.text};
     }
 
@@ -287,7 +379,8 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
       font-size: 11px;
       font-family: inherit;
       outline: none;
-      transition: border-color 0.12s ease;
+      transition: border-color 0.12s ease, background 0.12s ease;
+      pointer-events: auto;
     }
 
     .dl-search::placeholder {
@@ -296,6 +389,7 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
 
     .dl-search:focus {
       border-color: ${colors.brand};
+      background: ${colors.bg};
     }
 
     /* ─── Issue List ─── */
@@ -580,6 +674,8 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
       font-size: 10px;
       color: ${colors.textMuted};
       font-weight: 500;
+      opacity: 0.8;
+      letter-spacing: 0.02em;
     }
 
     .dl-view-toggle {

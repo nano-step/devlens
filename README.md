@@ -23,7 +23,7 @@ Zero config. Dev-only. Drop it in and see everything.
 |---------|---------|-------------|
 | [@devlens/core](./packages/core) | 2.0.3 | Detection engine, interceptors, guardian, reporter |
 | [@devlens/react](./packages/react) | 2.0.3 | React provider, error boundary, guarded hooks |
-| [@devlens/ui](./packages/ui) | 1.2.0 | Visual debug panel overlay + inspector window |
+| [@devlens/ui](./packages/ui) | 1.3.0 | Visual debug panel overlay + inspector window |
 | [@devlens/vue](./packages/vue) | 1.0.3 | Vue 3 plugin, guarded composables |
 | [@devlens/vite](./packages/vite) | 0.1.0 | Vite plugin - embedded DevLens dashboard |
 

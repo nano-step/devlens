@@ -14,6 +14,11 @@ export interface PanelConfig {
   theme?: 'dark' | 'light';
   /** Hotkey to toggle panel (default: 'ctrl+shift+d') */
   hotkey?: string;
+  /**
+   * URL of the DevLens hosted dashboard (e.g. `'http://localhost:5173/__devlens__'`).
+   * When set, a small dashboard-open button appears above the toggle button.
+   */
+  dashboardUrl?: string;
 }
 
 /** Internal state of the panel */

@@ -1,7 +1,24 @@
 # Changelog
 
 
+## 0.2.0 (2026-02-26)
+
+### Changes
+
+- **@devlens/ui** v1.3.0 -- Panel UX polish + bug fixes + dashboard opener
+  - **Fix**: Duplicate panel on page refresh / React StrictMode double-invocation -- `createDevLensPanel()` now checks if `#devlens-ui-root` already exists and skips re-init
+  - **Fix**: Toggle button now shows a proper DevLens lens icon (SVG) instead of plain `DL` text; hovering shows the keyboard shortcut in a tooltip
+  - **Fix**: Search input was not receiving keyboard events due to missing `pointer-events: auto` -- now explicitly set; keydown/keyup also stop propagation to prevent shortcut conflicts with the host app
+  - **Fix**: Header buttons (JSON, CSV, CLR, ×) redesigned with SVG icons + labels -- cleaner, more polished appearance with distinct hover states; CLR button turns red on hover
+  - **Fix**: Footer version label now reflects the actual `@devlens/core` version injected at build time (was hardcoded `v1.0.0`)
+  - **New**: `createDashboardOpener(config)` -- opens the hosted DevLens dashboard in a new window/tab, tracks open/close state, exposes `open()`, `close()`, `isOpen`, `sessionId`, `dashboardLink`
+  - **New**: `createDashboardReporter(opener)` -- reporter adapter that auto-opens the dashboard on the first detected issue
+  - **New**: `PanelConfig.dashboardUrl` -- when set, a small dashboard-open button (monitor icon) appears above the main panel toggle for quick manual access
+
+---
+
 ## 0.1.0 (2026-02-25)
+
 
 ### New Packages
 

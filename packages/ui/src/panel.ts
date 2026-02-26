@@ -3,6 +3,11 @@ import type { PanelConfig, PanelInstance, PanelState } from './types';
 import { getPanelStyles } from './styles';
 import { createPersistenceManager } from './persistence';
 import { exportAsJSON, exportAsCSV, downloadFile } from './export';
+// __DEVLENS_VERSION__ is replaced by tsup at build time (see tsup.config.ts define)
+// Falls back to empty string in non-bundled environments (tests, typecheck)
+declare const __DEVLENS_VERSION__: string;
+const PANEL_VERSION: string = typeof __DEVLENS_VERSION__ !== 'undefined' ? __DEVLENS_VERSION__ : '';
+
 
 const CATEGORY_LABELS: Record<IssueCategory, string> = {
   'network': '[NET]',
@@ -78,13 +83,27 @@ export function createPanel(
   shadow.appendChild(styleEl);
 
   const toggleBtn = el('button', `dl-toggle ${position}`);
-  toggleBtn.textContent = 'DL';
   toggleBtn.setAttribute('aria-label', 'Toggle DevLens panel');
+  toggleBtn.title = `DevLens (${hotkey})`;
+  toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><circle cx="11" cy="11" r="3" fill="currentColor" stroke="none"/></svg>`;
 
   const badge = el('span', 'dl-toggle-badge hidden');
   badge.textContent = '0';
   toggleBtn.appendChild(badge);
   shadow.appendChild(toggleBtn);
+
+  // Optional dashboard-open button — rendered above the main toggle when dashboardUrl is set
+  if (config.dashboardUrl) {
+    const dashboardUrl = config.dashboardUrl;
+    const dashBtn = el('button', `dl-dashboard-btn ${position}`);
+    dashBtn.setAttribute('aria-label', 'Open DevLens Dashboard');
+    dashBtn.title = 'Open DevLens Dashboard';
+    dashBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`;
+    dashBtn.addEventListener('click', () => {
+      window.open(dashboardUrl, 'devlens-dashboard');
+    });
+    shadow.appendChild(dashBtn);
+  }
 
   let issueCountEl: HTMLElement;
   let searchInput: HTMLInputElement;
@@ -129,32 +148,62 @@ export function createPanel(
     h.appendChild(left);
 
     const actions = el('div', 'dl-header-actions');
+
+    // Export JSON button
     const exportJsonBtn = el('button', 'dl-header-btn');
-    exportJsonBtn.textContent = 'JSON';
     exportJsonBtn.title = 'Export as JSON';
+    exportJsonBtn.setAttribute('aria-label', 'Export as JSON');
+    exportJsonBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm6 11a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-1-4h2V4H7v5z"/>
+      </svg>
+      <span class="dl-btn-label">JSON</span>
+    `;
     exportJsonBtn.addEventListener('click', () => {
       const json = exportAsJSON(state.issues);
       downloadFile(json, `devlens-issues-${Date.now()}.json`, 'application/json');
     });
     actions.appendChild(exportJsonBtn);
 
+    // Export CSV button
     const exportCsvBtn = el('button', 'dl-header-btn');
-    exportCsvBtn.textContent = 'CSV';
     exportCsvBtn.title = 'Export as CSV';
+    exportCsvBtn.setAttribute('aria-label', 'Export as CSV');
+    exportCsvBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+        <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zM9.5 3V0L14 4.5H9.5V3zM3.5 9.5l1.5 1.5-1.5 1.5.7.7L6 11l-1.8-1.8-.7.7zm5.5 3H10V9h-1v2.5l-1-.5v1l1 .5zm1.5-3.5v4h1V9h-1z"/>
+      </svg>
+      <span class="dl-btn-label">CSV</span>
+    `;
     exportCsvBtn.addEventListener('click', () => {
       const csv = exportAsCSV(state.issues);
       downloadFile(csv, `devlens-issues-${Date.now()}.csv`, 'text/csv');
     });
     actions.appendChild(exportCsvBtn);
-    const clearBtn = el('button', 'dl-header-btn');
-    clearBtn.textContent = 'CLR';
+
+    // Clear button
+    const clearBtn = el('button', 'dl-header-btn dl-header-btn--danger');
     clearBtn.title = 'Clear all issues';
+    clearBtn.setAttribute('aria-label', 'Clear all issues');
+    clearBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+      </svg>
+      <span class="dl-btn-label">CLR</span>
+    `;
     clearBtn.addEventListener('click', () => clearIssues());
     actions.appendChild(clearBtn);
 
-    const closeBtn = el('button', 'dl-header-btn');
-    closeBtn.textContent = 'X';
+    // Close button
+    const closeBtn = el('button', 'dl-header-btn dl-header-btn--close');
     closeBtn.title = 'Close panel';
+    closeBtn.setAttribute('aria-label', 'Close panel');
+    closeBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+      </svg>
+    `;
     closeBtn.addEventListener('click', () => closePanel());
     actions.appendChild(closeBtn);
 
@@ -190,10 +239,15 @@ export function createPanel(
     searchInput = el('input', 'dl-search') as HTMLInputElement;
     searchInput.type = 'text';
     searchInput.placeholder = 'Search issues...';
+    // Ensure search input receives events regardless of parent pointer-events
+    searchInput.style.pointerEvents = 'auto';
     searchInput.addEventListener('input', () => {
       state.filter.search = searchInput.value;
       renderIssues();
     });
+    // Prevent keyboard events from bubbling to host app (avoid shortcut conflicts)
+    searchInput.addEventListener('keydown', (e) => e.stopPropagation());
+    searchInput.addEventListener('keyup', (e) => e.stopPropagation());
     f.appendChild(searchInput);
 
     return f;
@@ -203,7 +257,8 @@ export function createPanel(
     const f = el('div', 'dl-footer');
 
     const label = el('span', 'dl-footer-label');
-    label.textContent = 'DevLens v1.0.0';
+    const versionSuffix = PANEL_VERSION ? ` v${PANEL_VERSION}` : '';
+    label.textContent = `DevLens${versionSuffix}`;
     f.appendChild(label);
 
     const viewToggle = el('div', 'dl-view-toggle');

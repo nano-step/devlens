@@ -13,3 +13,6 @@ export { createDevLensInspector, createInspectorReporter } from './inspector/ind
 export type { InspectorConfig, InspectorInstance } from './inspector/index';
 export { createAdapter } from './inspector/adapter';
 export type { InspectorAdapter } from './inspector/adapter';
+
+export { createDashboardOpener, createDashboardReporter } from './dashboard-opener';
+export type { DashboardOpenerConfig, DashboardOpenerInstance } from './dashboard-opener';
