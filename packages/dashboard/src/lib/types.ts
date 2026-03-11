@@ -57,6 +57,14 @@ export interface SingleIssueAIResult {
   _tokens?: number;
 }
 
+export interface PatchResult {
+  file: string;
+  diff: string;
+  explanation: string;
+  _model?: string;
+  _tokens?: number;
+}
+
 export interface IssueAIState {
   loading: boolean;
   error: string | null;
@@ -71,6 +79,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   'unhandled-error': 'ERR',
   'unhandled-rejection': 'REJ',
   'type-mismatch': 'TYPE',
+  'api-contract': 'CONTRACT',
 };
 
 export const CATEGORY_CSS: Record<string, string> = {
@@ -81,6 +90,7 @@ export const CATEGORY_CSS: Record<string, string> = {
   'unhandled-error': 'err',
   'unhandled-rejection': 'rej',
   'type-mismatch': 'type',
+  'api-contract': 'contract',
 };
 
 export const AI_MODELS = [

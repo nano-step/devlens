@@ -1,5 +1,5 @@
 import type { DetectedIssue } from '@devlens/core';
-import type { AIResult, AIModel, SingleIssueAIResult } from './types';
+import type { AIResult, AIModel, SingleIssueAIResult, PatchResult } from './types';
 import { getSourceContextForIssue } from './source-fetcher';
 
 const API_URL = 'https://proxy.hoainho.info/v1/chat/completions';
@@ -148,6 +148,54 @@ export async function analyzeIssues(
   return result;
 }
 
+// ── Patch Generation ───────────────────────────────────────────
+
+const PATCH_PROMPT = `You are DevLens AI - a JavaScript/TypeScript code fixer.
+Given a runtime issue and source code, generate a minimal unified diff patch that fixes the issue.
+
+RESPOND IN VALID JSON:
+{
+  "file": "path/to/file.ts",
+  "diff": "--- a/file.ts\\n+++ b/file.ts\\n@@ -10,3 +10,5 @@\\n context\\n-old line\\n+new line\\n context",
+  "explanation": "1 sentence why this fix works."
+}
+
+RULES:
+- diff MUST be valid unified diff format
+- Only change the minimum lines needed
+- Include 3 lines of context around changes
+- file path should be relative (from source code context)
+- If no source code is available, set diff to empty string and explain in explanation`;
+
+export async function generatePatch(
+  issue: DetectedIssue,
+  model: AIModel,
+): Promise<PatchResult> {
+  let sourceContext = '';
+  try {
+    sourceContext = await getSourceContextForIssue(issue);
+  } catch {
+    // proceed without source
+  }
+
+  const userPrompt = `Fix this runtime issue:\n\n${formatSingleIssueForAI(issue, sourceContext)}`;
+  const { text, tokens } = await callAI(model, PATCH_PROMPT, userPrompt, 1024);
+
+  let result: PatchResult;
+  try {
+    result = JSON.parse(text) as PatchResult;
+  } catch {
+    result = {
+      file: '',
+      diff: '',
+      explanation: text.slice(0, 500),
+    };
+  }
+
+  result._model = model;
+  result._tokens = tokens;
+  return result;
+}
 // ── Single Issue Analysis ──────────────────────────────────────
 
 const SINGLE_ISSUE_PROMPT = `You are DevLens AI - a JavaScript/TypeScript runtime error analyst.
