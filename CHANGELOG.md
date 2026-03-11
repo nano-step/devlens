@@ -1,6 +1,24 @@
 # Changelog
 
 
+## 3.0.1 (2026-03-11)
+
+### Improvements
+
+- **@devlens/core** — `NetworkInterceptor` now supports `trackContracts: true` to attach JSON response bodies to network issues, enabling the API Contract Guardian plugin to learn and compare shapes automatically.
+- **@devlens/dashboard** — "Generate Fix" button added per-issue. AI generates unified diff patches with copy-to-clipboard. Displayed alongside existing AI analysis.
+- **@devlens/ui** — "SES" (Export Session) button added to panel header. Exports current issues as `.devlens` file with session metadata and timeline.
+- **@devlens/ui** — `PanelInstance` now has `enable()` and `disable()` methods to programmatically show/hide the toggle button.
+- **@devlens/ui** — `PanelConfig.autoOpenDashboard` option added (default: `false`). Dashboard no longer auto-opens — users must click the dashboard button explicitly.
+
+### Docs
+
+- Landing page updated for v3.0 with all new features (X-Ray Mode, Plugin System, API Contract, AI Auto-Fix, Session Recording, Async Tracker).
+- GitHub org references updated from `crashsense` to `nano-step`.
+- Deploy workflow now triggers on CHANGELOG.md and README.md changes.
+
+---
+
 ## 🚀 3.0.0 — "The Lens Update" (2026-03-11)
 
 > **This is the biggest DevLens release ever.** 7 new features, 1 new package, and the architecture foundation for everything that comes next. DevLens is no longer just an error detector — it's a **development lens** that lets you see through your UI.

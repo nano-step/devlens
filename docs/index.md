@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: DevLens
-  text: Runtime Error Detection SDK
-  tagline: Stop adding console.log everywhere. DevLens auto-detects API failures, null access, and missing render data - with actionable context.
+  text: See through your UI
+  tagline: Zero-config runtime error detection for JS/TS. X-Ray Mode, API Contract Guardian, AI Auto-Fix, Session Recording — and more.
   image:
     src: /logo.svg
     alt: DevLens
@@ -14,32 +14,36 @@ hero:
       link: /quick-start
     - theme: alt
       text: View on GitHub
-      link: https://github.com/crashsense/devlens
+      link: https://github.com/nano-step/devlens
     - theme: alt
       text: npm
       link: https://www.npmjs.com/package/@devlens/core
 
 features:
+  - title: "\U0001F52C X-Ray Mode"
+    details: "Hold Alt + hover over any element to see component name, props, state, classnames, and related DevLens issues. Works with React, Vue, and vanilla DOM. NEW in v3.0."
+  - title: "\U0001F50C Plugin Ecosystem"
+    details: "engine.registerPlugin() — first-class plugin API with lifecycle management. Build custom plugins or use built-in ones: API Contract Guardian, Async Tracker. NEW in v3.0."
+  - title: "\U0001F4E1 API Contract Guardian"
+    details: "Auto-learns your API response shapes and alerts when fields disappear or change type. Catches backend breaking changes before your UI breaks. NEW in v3.0."
+  - title: "\U0001F9E0 AI Auto-Fix"
+    details: "AI generates unified diff patches from source code context. Analyze issues and get copy-paste fixes directly in the dashboard. NEW in v3.0."
+  - title: "\u23F1\uFE0F Session Recording"
+    details: "QA exports a .devlens file with full session timeline. Dev imports it and sees exactly what QA saw. No more 'I can\u2019t reproduce it'. NEW in v3.0."
+  - title: "\U0001F30A Async Flow Tracker"
+    details: "Detect hung promises (pending > 30s) and duplicate concurrent fetch requests. NEW in v3.0."
   - title: Network Interceptor
-    details: Auto-intercepts fetch and XHR. Logs 4xx/5xx errors with timing, URL, and fix suggestions. Zero config - just wrap your app.
+    details: Auto-intercepts fetch and XHR. Logs 4xx/5xx errors with timing, URL, and fix suggestions. Zero config.
   - title: Data Guardian
-    details: ES6 Proxy wraps your objects to detect null/undefined access with full path tracking - e.g. "user.profile.avatar is null".
-  - title: Render Data Watch
-    details: Monitors state values your UI depends on. Alerts when critical props become null or undefined before rendering breaks.
-  - title: Zero Config
-    details: Drop in DevLensProvider and see everything. No manual instrumentation needed. Dev-only - auto-disabled in production.
-  - title: Actionable Logs
-    details: Not just "error occurred". DevLens shows the property path, expected type, found value, and suggests the fix.
-  - title: Error Boundary
-    details: Enhanced React ErrorBoundary that integrates with the DevLens engine. Supports render prop fallback with reset functionality.
-  - title: UI Panel
-    details: Floating debug panel with Shadow DOM isolation. Issue list, timeline, filtering, search, export, and session persistence. NEW in v2.0.
-  - title: Vue Support
-    details: Vue 3 plugin with auto error/warn handler integration, guarded refs and watchers. NEW in v2.0.
+    details: "ES6 Proxy wraps your objects to detect null/undefined access with full path tracking \u2014 e.g. \"user.profile.avatar is null\"."
+  - title: UI Panel + Dashboard
+    details: "Floating debug panel with Shadow DOM isolation. Full dashboard with AI analysis, timeline, filtering, export. Toggle with Ctrl+Shift+D."
+  - title: Framework Support
+    details: "React, Vue 3, and vanilla JS/Web Components. Zero-config adapters with guarded state hooks."
   - title: Tiny and Tree-shakeable
-    details: ~20KB core + ~5KB framework adapters. Zero runtime dependencies. Dual ESM + CJS output with full TypeScript declarations.
+    details: "~22KB core + ~5KB framework adapters. Zero runtime deps. Dual ESM + CJS. Full TypeScript."
   - title: Production Safe
-    details: Auto-disabled when NODE_ENV=production. sideEffects false enables tree-shaking. Zero overhead when inactive.
+    details: "Auto-disabled when NODE_ENV=production. sideEffects: false. Zero overhead when inactive."
 ---
 
 <div class="vp-doc" style="padding: 0 24px; max-width: 900px; margin: 0 auto;">
@@ -49,10 +53,17 @@ features:
 ### Install
 
 ```bash
+# React
 npm install @devlens/core @devlens/react
+
+# Vue
+npm install @devlens/core @devlens/vue
+
+# Vanilla JS / Web Components
+npm install @devlens/core @devlens/web
 ```
 
-### Wrap Your App
+### React
 
 ```tsx
 import { DevLensProvider, DevLensErrorBoundary } from '@devlens/react';
@@ -68,37 +79,7 @@ function App() {
 }
 ```
 
-### Guard Your Data
-
-```tsx
-import { useGuardedState } from '@devlens/react';
-
-function UserProfile() {
-  const [user, setUser] = useGuardedState(initialUser, 'UserProfile');
-
-  // If user.profile.avatar is null, DevLens auto-logs:
-  return <img src={user.profile.avatar} />;
-}
-```
-
-### What You'll See in Console
-
-<div class="console-preview">
-<span class="warn">[NULL] DevLens [WARN] null-access: Property "avatar" is null at path "user.profile.avatar"</span><br>
-<span class="dim">&nbsp;&nbsp;|- Path: user.profile.avatar</span><br>
-<span class="dim">&nbsp;&nbsp;|- Value: null</span><br>
-<span class="dim">&nbsp;&nbsp;|- Source: UserProfile</span><br>
-<span class="dim">&nbsp;&nbsp;|- Suggestion: Check if "avatar" is loaded/initialized before accessing</span><br>
-<span class="dim">&nbsp;&nbsp;\- Timestamp: 2026-02-24T14:30:00.000Z</span><br>
-<br>
-<span class="error">[NET] DevLens [ERROR] network: POST /api/users returned 500 Internal Server Error</span><br>
-<span class="dim">&nbsp;&nbsp;|- Status: 500</span><br>
-<span class="dim">&nbsp;&nbsp;|- Duration: 1234ms</span><br>
-<span class="dim">&nbsp;&nbsp;|- Suggestion: Server returned 500 - check server logs</span><br>
-<span class="dim">&nbsp;&nbsp;\- Source: NetworkInterceptor</span>
-</div>
-
-## Vue.js
+### Vue
 
 ```ts
 import { createApp } from 'vue';
@@ -109,71 +90,76 @@ app.use(createDevLensPlugin());
 app.mount('#app');
 ```
 
-## UI Panel
+### Vanilla JS
 
 ```ts
-import { createDetectionEngine } from '@devlens/core';
-import { createDevLensPanel, createPanelReporter } from '@devlens/ui';
+import { initDevLens } from '@devlens/web';
 
-const panel = createDevLensPanel({ theme: 'dark' });
-const engine = createDetectionEngine({
-  reporter: createPanelReporter(panel),
+const { engine, destroy } = initDevLens();
+```
+
+## X-Ray Mode <span style="background:#6366f1;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;vertical-align:middle">NEW v3.0</span>
+
+Hold **Alt + hover** over any element. DevLens highlights it and shows component name, props, state, classnames, and related issues.
+
+```ts
+import { createDevLensPanel } from '@devlens/ui';
+
+const { panel, reporter } = createDevLensPanel({
+  xray: true, // enabled by default
 });
 ```
 
-Toggle with Ctrl+Shift+D. Supports issue list, timeline, filtering, search, JSON/CSV export, and session persistence.
+No browser extension needed. No DevTools panel to open. Just hold Alt and look.
 
-
-## Inspector Window <span style="background:#6366f1;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;vertical-align:middle">NEW</span>
-
-Open a dedicated inspector window with AI-powered issue analysis:
+## Plugin System <span style="background:#6366f1;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;vertical-align:middle">NEW v3.0</span>
 
 ```ts
-import { createDetectionEngine } from '@devlens/core';
-import { createDevLensInspector, createInspectorReporter } from '@devlens/ui';
-
-const inspector = createDevLensInspector();
-const engine = createDetectionEngine({
-  reporter: createInspectorReporter(inspector),
-});
-```
-
-The inspector opens as a separate browser window with sidebar navigation, issue detail view, timeline, severity/category filtering, and an AI Analysis tab that uses Gemini/Claude/GPT to identify root causes and suggest fixes.
-
-## Vanilla JS
-
-```ts
-import {
-  createDetectionEngine,
-  createNetworkInterceptor,
-  createGlobalCatcher,
-  createDataGuardian,
-} from '@devlens/core';
+import { createDetectionEngine, createApiContractPlugin, createAsyncTrackerPlugin } from '@devlens/core';
 
 const engine = createDetectionEngine();
-
-const network = createNetworkInterceptor(engine);
-network.install();
-
-const catcher = createGlobalCatcher(engine);
-catcher.install();
-
-const guardian = createDataGuardian(engine);
-const data = guardian.guard(apiResponse, 'apiResponse');
-
-// Accessing null/undefined properties now auto-logs
-console.log(data.user.profile.avatar);
+engine.registerPlugin(createApiContractPlugin({ endpoints: ['/api/*'] }));
+engine.registerPlugin(createAsyncTrackerPlugin({ timeoutMs: 30000 }));
 ```
+
+## Session Recording <span style="background:#6366f1;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;vertical-align:middle">NEW v3.0</span>
+
+QA finds a bug → exports `.devlens` file → Dev imports → sees exactly what QA saw.
+
+```ts
+import { createSessionRecorder, exportSession } from '@devlens/ui';
+
+const recorder = createSessionRecorder('session-id', engine.subscribe);
+recorder.start();
+// ... later ...
+exportSession(recorder.getSession());
+```
+
+## What You'll See in Console
+
+<div class="console-preview">
+<span class="warn">[NULL] DevLens [WARN] null-access: Property "avatar" is null at path "user.profile.avatar"</span><br>
+<span class="dim">&nbsp;&nbsp;|- Path: user.profile.avatar</span><br>
+<span class="dim">&nbsp;&nbsp;|- Value: null</span><br>
+<span class="dim">&nbsp;&nbsp;|- Source: UserProfile</span><br>
+<span class="dim">&nbsp;&nbsp;\- Suggestion: Check if "avatar" is loaded/initialized before accessing</span><br>
+<br>
+<span class="error">[CONTRACT] DevLens [WARN] api-contract: Field "avatar" disappeared from GET /api/users response</span><br>
+<span class="dim">&nbsp;&nbsp;|- Expected: string</span><br>
+<span class="dim">&nbsp;&nbsp;|- Received: missing</span><br>
+<span class="dim">&nbsp;&nbsp;\- Suggestion: Check if the API changed</span>
+</div>
 
 ## Packages
 
 | Package | Version | Size |
 |---------|---------|------|
-| @devlens/core | 2.0.3 | ~20KB |
-| @devlens/react | 2.0.3 | ~5KB |
-| @devlens/ui | 1.2.0 | ~75KB |
-| @devlens/vue | 1.0.3 | ~5KB |
-| @devlens/vite | 0.1.0 | ~1KB |
+| @devlens/core | 3.0.0 | ~22KB |
+| @devlens/react | 3.0.0 | ~5KB |
+| @devlens/vue | 2.0.0 | ~5KB |
+| @devlens/ui | 2.0.0 | ~102KB |
+| @devlens/vite | 2.0.0 | ~1KB |
+| @devlens/web | 0.1.0 | ~3KB |
 
 ## Roadmap
 
@@ -191,31 +177,29 @@ console.log(data.user.profile.avatar);
     <div class="roadmap-marker"></div>
     <div class="roadmap-content">
       <div class="roadmap-version">v2.0</div>
-      <div class="roadmap-title">UI Panel + Vue Support</div>
-      <div class="roadmap-desc">Floating debug panel overlay, Vue 3 plugin, guarded composables</div>
+      <div class="roadmap-title">UI Panel + Vue + Dashboard</div>
+      <div class="roadmap-desc">Floating debug panel, Vue 3 plugin, inspector window, embedded dashboard via Vite</div>
       <span class="roadmap-badge done">Released</span>
     </div>
   </div>
   <div class="roadmap-item current">
     <div class="roadmap-marker"></div>
     <div class="roadmap-content">
-      <div class="roadmap-version">v2.1</div>
-      <div class="roadmap-title">Inspector + Dashboard</div>
-      <div class="roadmap-desc">Dedicated inspector window, embedded dashboard via Vite plugin, AI-powered analysis</div>
+      <div class="roadmap-version">v3.0</div>
+      <div class="roadmap-title">The Lens Update</div>
+      <div class="roadmap-desc">X-Ray Mode, Plugin System, API Contract, AI Auto-Fix, Session Recording, Async Tracker, @devlens/web</div>
       <span class="roadmap-badge current">Current</span>
     </div>
   </div>
   <div class="roadmap-item planned">
     <div class="roadmap-marker"></div>
     <div class="roadmap-content">
-      <div class="roadmap-version">v3.0</div>
-      <div class="roadmap-title">Deep AI Integration</div>
-      <div class="roadmap-desc">Real-time pattern detection, auto-fix generation, CI/CD integration</div>
+      <div class="roadmap-version">v4.0</div>
+      <div class="roadmap-title">Universal Coverage</div>
+      <div class="roadmap-desc">Svelte, Solid, Angular adapters. Browser extension. Deeper AI integration.</div>
       <span class="roadmap-badge planned">Planned</span>
     </div>
   </div>
 </div>
-
-The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes - directly in your dev console or UI panel.
 
 </div>
