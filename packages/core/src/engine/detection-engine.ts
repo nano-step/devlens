@@ -1,6 +1,7 @@
 import type {
   DevLensConfig,
   DevLensEngine,
+  DevLensPlugin,
   DetectedIssue,
   Reporter,
   Severity,
@@ -160,11 +161,50 @@ export function createDetectionEngine(
     };
   }
 
-  return {
+  const plugins = new Map<string, DevLensPlugin>();
+
+  const engine: DevLensEngine = {
     report,
     getConfig,
     getIssues,
     subscribe,
     isEnabled,
+
+    registerPlugin(plugin: DevLensPlugin): void {
+      if (plugins.has(plugin.name)) {
+        const existing = plugins.get(plugin.name)!;
+        existing.teardown?.();
+      }
+      plugins.set(plugin.name, plugin);
+      plugin.setup(engine);
+    },
+
+    unregisterPlugin(name: string): void {
+      const plugin = plugins.get(name);
+      if (plugin) {
+        plugin.teardown?.();
+        plugins.delete(name);
+      }
+    },
+
+    getPlugin(name: string): DevLensPlugin | undefined {
+      return plugins.get(name);
+    },
+
+    listPlugins(): readonly DevLensPlugin[] {
+      return Array.from(plugins.values());
+    },
+
+    destroy(): void {
+      for (const plugin of plugins.values()) {
+        plugin.teardown?.();
+      }
+      plugins.clear();
+      subscribers.clear();
+      issues.length = 0;
+      lastReportedAt.clear();
+    },
   };
+
+  return engine;
 }

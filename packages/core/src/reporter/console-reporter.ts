@@ -8,6 +8,7 @@ const CATEGORY_LABELS: Record<IssueCategory, string> = {
   'unhandled-error': '[ERR]',
   'unhandled-rejection': '[REJ]',
   'type-mismatch': '[TYPE]',
+  'api-contract': '[CONTRACT]',
 };
 
 const SEVERITY_COLORS: Record<Severity, string> = {
@@ -55,7 +56,10 @@ function formatDetails(issue: DetectedIssue): string[] {
     lines.push(`  \\- Stack:\n${stackPreview}`);
   } else if (lines.length > 0) {
     const lastIdx = lines.length - 1;
-    lines[lastIdx] = lines[lastIdx].replace('|-', '\\-');
+    const lastLine = lines[lastIdx];
+    if (lastLine) {
+      lines[lastIdx] = lastLine.replace('|-', '\\-');
+    }
   }
 
   return lines;

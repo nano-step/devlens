@@ -11,6 +11,11 @@ function makeEngine(): DevLensEngine & { reported: DetectedIssue[] } {
     getIssues: vi.fn(() => reported),
     subscribe: vi.fn(() => () => {}),
     isEnabled: vi.fn(() => true),
+    registerPlugin: vi.fn(),
+    unregisterPlugin: vi.fn(),
+    getPlugin: vi.fn(() => undefined),
+    listPlugins: vi.fn(() => []),
+    destroy: vi.fn(),
   };
 }
 

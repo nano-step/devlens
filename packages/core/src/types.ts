@@ -9,7 +9,8 @@ export type IssueCategory =
   | 'render-data'
   | 'unhandled-error'
   | 'unhandled-rejection'
-  | 'type-mismatch';
+  | 'type-mismatch'
+  | 'api-contract';
 
 /** A detected issue from any DevLens module */
 export interface DetectedIssue {
@@ -118,18 +119,22 @@ export interface Reporter {
   clear?(): void;
 }
 
-/** Lifecycle hooks for the DevLens engine */
 export interface DevLensPlugin {
   name: string;
+  version?: string;
   setup(engine: DevLensEngine): void;
   teardown?(): void;
 }
 
-/** The core engine interface exposed to plugins and adapters */
 export interface DevLensEngine {
   report(issue: DetectedIssue): void;
   getConfig(): Readonly<DevLensConfig>;
   getIssues(): readonly DetectedIssue[];
   subscribe(callback: (issue: DetectedIssue) => void): () => void;
   isEnabled(): boolean;
+  registerPlugin(plugin: DevLensPlugin): void;
+  unregisterPlugin(name: string): void;
+  getPlugin(name: string): DevLensPlugin | undefined;
+  listPlugins(): readonly DevLensPlugin[];
+  destroy(): void;
 }
