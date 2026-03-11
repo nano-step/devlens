@@ -4,7 +4,8 @@ import { useDashboardStore, useDashboardActions } from '../hooks/use-dashboard-s
 import { filterIssues, relativeTime } from '../lib/utils';
 import { CATEGORY_LABELS, AI_MODELS } from '../lib/types';
 import type { AIModel, IssueAIState } from '../lib/types';
-import { analyzeSingleIssue } from '../lib/ai';
+import { analyzeSingleIssue, generatePatch } from '../lib/ai';
+import type { PatchResult } from '../lib/types';
 import { Markdown } from '../lib/markdown';
 
 function InlineAIResult({ aiState }: { aiState: IssueAIState }) {
@@ -80,6 +81,7 @@ function IssueDetail({ issue }: { issue: DetectedIssue }) {
   const { issueAI } = useDashboardStore();
   const { setIssueAI } = useDashboardActions();
   const [model, setModel] = useState<AIModel>('gemini-2.5-flash-lite');
+  const [patchState, setPatchState] = useState<{ loading: boolean; result: PatchResult | null; error: string | null } | null>(null);
   const aiState = issueAI[issue.id];
 
   const handleAnalyze = useCallback(async () => {
@@ -95,6 +97,21 @@ function IssueDetail({ issue }: { issue: DetectedIssue }) {
       });
     }
   }, [aiState?.loading, issue, model, setIssueAI]);
+
+  const handleGenerateFix = useCallback(async () => {
+    if (patchState?.loading) return;
+    setPatchState({ loading: true, result: null, error: null });
+    try {
+      const result = await generatePatch(issue, model);
+      setPatchState({ loading: false, result, error: null });
+    } catch (err) {
+      setPatchState({
+        loading: false,
+        result: null,
+        error: err instanceof Error ? err.message : 'Patch generation failed',
+      });
+    }
+  }, [patchState?.loading, issue, model]);
 
   return (
     <div className="issue-detail visible">
@@ -159,9 +176,62 @@ function IssueDetail({ issue }: { issue: DetectedIssue }) {
         >
           {aiState?.loading ? 'Analyzing...' : aiState?.result ? 'Re-analyze' : 'Analyze with AI'}
         </button>
+        <button
+          className="btn btn-brand"
+          disabled={patchState?.loading}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleGenerateFix();
+          }}
+        >
+          {patchState?.loading ? 'Generating...' : patchState?.result ? 'Re-generate Fix' : 'Generate Fix'}
+        </button>
       </div>
 
       {aiState && <InlineAIResult aiState={aiState} />}
+
+      {patchState?.error && (
+        <div className="inline-ai">
+          <div className="inline-ai-header error">
+            <span className="inline-ai-dot error" />
+            <span>{patchState.error}</span>
+          </div>
+        </div>
+      )}
+
+      {patchState?.result && (
+        <div className="inline-ai">
+          <div className="inline-ai-header">
+            <span className="inline-ai-label">AI Fix</span>
+            {patchState.result.file && <span className="inline-ai-meta">{patchState.result.file}</span>}
+            {patchState.result._model && <span className="inline-ai-meta">{patchState.result._model}</span>}
+          </div>
+          {patchState.result.explanation && (
+            <div className="inline-ai-section">
+              <div className="inline-ai-section-label">Explanation</div>
+              <Markdown content={patchState.result.explanation} />
+            </div>
+          )}
+          {patchState.result.diff && (
+            <div className="inline-ai-section">
+              <div className="inline-ai-section-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                Patch
+                <button
+                  className="btn btn-brand"
+                  style={{ fontSize: '10px', padding: '2px 8px' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(patchState.result?.diff ?? '');
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
+              <pre className="detail-stack" style={{ maxHeight: '200px' }}>{patchState.result.diff}</pre>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
