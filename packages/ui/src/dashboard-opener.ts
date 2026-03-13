@@ -44,13 +44,54 @@ const NOOP_OPENER: DashboardOpenerInstance = {
   dashboardLink: '',
 };
 
+const STORAGE_KEY = 'devlens-dashboard-open';
+
 function generateSessionId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 /**
+ * Check if a dashboard window is already open by trying to reference it.
+ * Uses sessionStorage to persist knowledge across page refreshes.
+ */
+function isDashboardAlreadyOpen(windowName: string): boolean {
+  try {
+    // Try to reference the existing window by name
+    const existing = window.open('', windowName);
+    if (existing && !existing.closed && existing.location.href !== 'about:blank') {
+      // Window exists and has navigated — dashboard is open
+      return true;
+    }
+  } catch {
+    // Cross-origin or popup blocked — check sessionStorage fallback
+  }
+
+  try {
+    return sessionStorage.getItem(STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function persistOpenState(isOpen: boolean): void {
+  try {
+    if (isOpen) {
+      sessionStorage.setItem(STORAGE_KEY, 'true');
+    } else {
+      sessionStorage.removeItem(STORAGE_KEY);
+    }
+  } catch {
+    // sessionStorage unavailable
+  }
+}
+
+/**
  * Creates a controller that opens the DevLens hosted dashboard in a new browser
  * window/tab and tracks whether that window is still open.
+ *
+ * **Singleton behavior**: Only one dashboard window is allowed at a time.
+ * If a dashboard is already open (even from a previous page load), calling
+ * `open()` will focus it instead of opening a new one.
  *
  * SSR-safe and production-safe — returns a noop instance when `document` is
  * unavailable or `NODE_ENV === 'production'`.
@@ -94,6 +135,7 @@ export function createDashboardOpener(
     pollTimer = setInterval(() => {
       if (win && win.closed) {
         win = null;
+        persistOpenState(false);
         if (pollTimer !== null) {
           clearInterval(pollTimer);
           pollTimer = null;
@@ -103,12 +145,16 @@ export function createDashboardOpener(
   }
 
   function open(): void {
+    // If we already have a live reference, just focus
     if (win && !win.closed) {
       win.focus();
       return;
     }
+
+    // Open (or reuse) the named window — browsers reuse windows with the same name
     win = window.open(dashboardLink, windowName);
     if (win) {
+      persistOpenState(true);
       startPoll();
     }
   }
@@ -118,6 +164,7 @@ export function createDashboardOpener(
       win.close();
     }
     win = null;
+    persistOpenState(false);
     if (pollTimer !== null) {
       clearInterval(pollTimer);
       pollTimer = null;
@@ -129,7 +176,9 @@ export function createDashboardOpener(
     close,
     destroy: close,
     get isOpen() {
-      return win !== null && !win.closed;
+      if (win !== null && !win.closed) return true;
+      // Fallback: check sessionStorage for cross-refresh awareness
+      return isDashboardAlreadyOpen(windowName);
     },
     sessionId,
     dashboardLink,
@@ -138,7 +187,9 @@ export function createDashboardOpener(
 
 /**
  * Creates a `Reporter` adapter that automatically opens the DevLens dashboard
- * the first time an issue is detected.
+ * the first time an issue is detected. Respects singleton — if a dashboard
+ * window is already open (even from a previous page load), it will NOT open
+ * another one.
  *
  * @example
  * ```ts
@@ -149,12 +200,15 @@ export function createDashboardOpener(
 export function createDashboardReporter(
   opener: DashboardOpenerInstance,
 ): Reporter {
-  let opened = false;
+  let triggered = false;
   return {
     report(): void {
-      if (!opened) {
-        opener.open();
-        opened = true;
+      if (!triggered) {
+        triggered = true;
+        // Only open if no dashboard is currently open
+        if (!opener.isOpen) {
+          opener.open();
+        }
       }
     },
   };

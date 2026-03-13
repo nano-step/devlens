@@ -1,9 +1,11 @@
-import type { Reporter } from '@devlens/core';
+import type { Reporter, DetectedIssue } from '@devlens/core';
 import type { PanelConfig, PanelInstance } from './types';
 import type { XRayInstance } from './xray/types';
 import { createPanel } from './panel';
 import { createPanelReporter } from './panel-reporter';
 import { createXRayMode } from './xray/xray-mode';
+import { createDashboardOpener } from './dashboard-opener';
+import type { DashboardOpenerInstance } from './dashboard-opener';
 
 export function createDevLensPanel(config?: PanelConfig): {
   panel: PanelInstance;
@@ -37,7 +39,25 @@ export function createDevLensPanel(config?: PanelConfig): {
   document.body.appendChild(host);
 
   const panel = createPanel(host, config);
-  const reporter = createPanelReporter(panel);
+  const baseReporter = createPanelReporter(panel);
+
+  let dashboardOpener: DashboardOpenerInstance | null = null;
+  if (config?.dashboardUrl && config.autoOpenDashboard) {
+    dashboardOpener = createDashboardOpener({
+      dashboardUrl: config.dashboardUrl,
+    });
+  }
+
+  let dashboardTriggered = false;
+  const reporter: Reporter = {
+    report(issue: DetectedIssue): void {
+      baseReporter.report(issue);
+      if (dashboardOpener && !dashboardTriggered && !dashboardOpener.isOpen) {
+        dashboardTriggered = true;
+        dashboardOpener.open();
+      }
+    },
+  };
 
   let xray: XRayInstance | null = null;
   const xrayEnabled = config?.xray !== false;
@@ -52,6 +72,7 @@ export function createDevLensPanel(config?: PanelConfig): {
 
   function destroy(): void {
     xray?.destroy();
+    dashboardOpener?.destroy();
     panel.destroy();
     host.remove();
   }
